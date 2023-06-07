@@ -2,6 +2,7 @@ import argparse
 import os
 import requests
 from git import Repo
+import subprocess
 
 def clone_repository(repo_url, destination_path):
     Repo.clone_from(repo_url, destination_path)
@@ -18,39 +19,37 @@ def get_user_repositories(username):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Clonar repositorios desde GitHub')
     parser.add_argument('username', help='Nombre de usuario de GitHub')
-    parser.add_argument('-n', '--number', nargs='?', const=-1, type=int, help='Número de repositorios a clonar del repositorio específico')
+    parser.add_argument('-n', '--number', type=int, help='Número de repositorios a clonar')
+    parser.add_argument('-c', '--cantidad', type=int, help='Cantidad de repositorios')
 
     args = parser.parse_args()
 
-    repositories = get_user_repositories(args.username)
+    if args.cantidad and args.cantidad >= 1 and args.cantidad <= 4:
+        args.number = args.cantidad
 
-    if repositories is None:
-        print('\033[93mEl usuario no existe o no se pudo obtener la lista de repositorios.\033[0m')
-    elif args.number:
-        if args.number > 0:
-            # Clonar el número especificado de repositorios del repositorio específico
-            num_repositories = min(args.number, len(repositories))
-            for repo in repositories[:num_repositories]:
-                # Clonar cada repositorio
-                repo_dir_name = repo['name']
-                destination_path = os.path.join('./descargas', repo_dir_name)
-                clone_repository(repo['clone_url'], destination_path)
-            print('\033[92mRepositorios clonados exitosamente.\033[0m')
-        elif args.number == -1:
-            # Clonar el repositorio específico
-            repo_name = args.number
-            repo = next((r for r in repositories if r['name'] == repo_name), None)
-            if repo is not None:
-                # Clonar el repositorio encontrado
-                repo_dir_name = repo['name']
-                destination_path = os.path.join('./descargas', repo_dir_name)
-                clone_repository(repo['clone_url'], destination_path)
-                print('\033[92mRepositorio clonado exitosamente.\033[0m')
+    if args.number:
+        if args.number >= 1 and args.number <= 4:
+            repositories = get_user_repositories(args.username)
+            if repositories is None:
+                print('\033[93mEl usuario no existe o no se pudo obtener la lista de repositorios.\033[0m')
             else:
-                print('\033[93mEl repositorio especificado no existe.\033[0m')
+                num_repositories = min(args.number, len(repositories))
+                for repo in repositories[:num_repositories]:
+                    repo_dir_name = repo['name']
+                    destination_path = os.path.join('./descargas', repo_dir_name)
+                    clone_repository(repo['clone_url'], destination_path)
+                print('\033[92m✅ Repositorios clonados exitosamente.\033[0m')
         else:
-            num_repositories = len(repositories)
-            print(f"La cantidad de repositorios del usuario {args.username} es de: {num_repositories}.")
-            print('\033[93mEl número de repositorios a clonar debe ser mayor que 0.\033[0m')
+            print('\033[93mEl número de repositorios a clonar debe estar entre 1 y 4.\033[0m')
     else:
-        print('\033[93mDebe especificar un número válido de repositorios a clonar o el nombre de un repositorio específico.\033[0m')
+        print('\033[93mDebe especificar el número de repositorios a clonar usando el parámetro -n.\033[0m')
+
+    # Crear entorno virtual
+    subprocess.run(["python", "-m", "venv", "gitclonatore"], check=True)
+
+    # Activar entorno virtual
+    activate_script = os.path.join("gitclonatore", "bin", "activate")
+    subprocess.run(["source", activate_script], shell=True, check=True)
+
+    # Instalar dependencias desde requirements.txt
+    subprocess.run(["pip", "install", "-r", "requirements.txt"], check=True)
