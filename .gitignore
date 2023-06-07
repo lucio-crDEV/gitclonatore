@@ -136,6 +136,7 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-/bin
+bin/
 pyvenv.cfg
-/descargas
+descargas/
+lib64/
