@@ -16,10 +16,9 @@ def get_user_repositories(username):
         return None
 
 if __name__ == '__main__':
-    # Definición de los argumentos de línea de comandos
     parser = argparse.ArgumentParser(description='Clonar repositorios desde GitHub')
     parser.add_argument('username', help='Nombre de usuario de GitHub')
-    parser.add_argument('-n', '--number', nargs='?', const=-1, type=int, help='Número de repositorios a clonar o nombre de un repositorio específico')
+    parser.add_argument('-n', '--number', nargs='?', const=-1, type=int, help='Número de repositorios a clonar del repositorio específico')
 
     args = parser.parse_args()
 
@@ -29,18 +28,20 @@ if __name__ == '__main__':
         print('\033[93mEl usuario no existe o no se pudo obtener la lista de repositorios.\033[0m')
     elif args.number:
         if args.number > 0:
+            # Clonar el número especificado de repositorios del repositorio específico
             num_repositories = min(args.number, len(repositories))
-            # Clonar los repositorios especificados
             for repo in repositories[:num_repositories]:
+                # Clonar cada repositorio
                 repo_dir_name = repo['name']
                 destination_path = os.path.join('./descargas', repo_dir_name)
                 clone_repository(repo['clone_url'], destination_path)
             print('\033[92mRepositorios clonados exitosamente.\033[0m')
         elif args.number == -1:
-            # Clonar un repositorio específico
+            # Clonar el repositorio específico
             repo_name = args.number
             repo = next((r for r in repositories if r['name'] == repo_name), None)
             if repo is not None:
+                # Clonar el repositorio encontrado
                 repo_dir_name = repo['name']
                 destination_path = os.path.join('./descargas', repo_dir_name)
                 clone_repository(repo['clone_url'], destination_path)
@@ -48,7 +49,6 @@ if __name__ == '__main__':
             else:
                 print('\033[93mEl repositorio especificado no existe.\033[0m')
         else:
-            # Obtener la cantidad de repositorios del usuario
             num_repositories = len(repositories)
             print(f"La cantidad de repositorios del usuario {args.username} es de: {num_repositories}.")
             print('\033[93mEl número de repositorios a clonar debe ser mayor que 0.\033[0m')
