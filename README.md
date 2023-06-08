@@ -12,6 +12,10 @@ GitClonatore es una herramienta de línea de comandos que te permite clonar repo
 1. Clona este repositorio o descarga el archivo `script.py`.
 2. Abre una terminal en el directorio donde se encuentra el archivo `script.py`.
 
+```
+pip install -r requeriments.txt
+```
+
 ## Uso
 
 ```
